@@ -1,99 +1,68 @@
-# Paper project — Natural Language Processing Journal (Elsevier)
+# An offline Tigrinya language model
 
-Target: **Natural Language Processing Journal** (Elsevier, ISSN
-2949-7191). Median time to first decision **10 days**. Fully open access;
-APC USD 915 discounted, waiver requested in the cover letter on
-Research4Life grounds.
+**Status: code release in progress — expected on acceptance of the
+accompanying paper.**
 
-## Authors
+This repository will hold the full pipeline behind an offline Tigrinya
+language model: a 144.6-million-token corpus assembled from 21 native and
+5 machine-translated sources, a 57,198-record Tigrinya instruction set, a
+two-stage adaptation of a 7.94-billion-parameter multilingual model, and
+a deployment benchmark on consumer laptops with no graphics hardware.
 
-| | Name | Affiliation |
-|---|---|---|
-| a | **Atsbaha Teweldemedhn Hagos** (corresponding) | Software Engineering, Mekelle University, Mekelle, Ethiopia |
-| b | Guesh Dagnew Demewez | Computer Science, Mekelle University, Mekelle, Ethiopia |
-| c | Desta Teklu Fkadu | Electrical and Computer Engineering, Mekelle University, Mekelle, Ethiopia |
-| d | Abrhaley Gebreslassie Gebremariam | Software Engineering, Adigrat University, Adigrat, Ethiopia |
+The code is written and the measurements are taken. What remains is the
+release hygiene that has to happen before a research pipeline becomes a
+public repository: removing credentials from history, pinning the
+dependency set, and checking that every released data file is one the
+source licence permits us to redistribute. That work is underway and the
+repository will be populated when the accompanying paper is accepted.
 
-Affiliations are marked with **lower-case superscript letters**, which is
-what the Elsevier guide asks for, rather than the numbers in which the
-list was supplied. The mapping is unchanged.
+## Already available
 
-## Journal compliance — checked against the guide for authors
-
-| Requirement | Status |
+| | |
 |---|---|
-| Decimal-numbered sections, max three levels | yes |
-| Abstract, max 250 words | 248 |
-| Keywords, 1 to 7 | 7 |
-| Highlights, 3 to 5 bullets, max 85 characters each | 5, longest 79 — `highlights.txt` |
-| Numbered citations in square brackets, order of appearance | `unsrt` + `natbib[numbers]` |
-| DOIs in references where available | yes on every 2026 entry |
-| CRediT authorship statement | present — **two entries need filling** |
-| Declaration of competing interest | yes |
-| Funding statement | yes |
-| Data availability statement | yes |
-| Generative-AI declaration under the exact required heading | yes |
-| Acknowledgements immediately before references | yes |
-| Figures: vector PDF, fonts embedded | yes, all eight |
-| Figures supplied as separate files | yes, `2_figures\` |
-| Editable source, not PDF | `.tex` |
-| Title page: names, affiliations, corresponding author email | yes |
-| Vitae: 100-word biography and photo per author | **missing** |
+| Corpus | https://huggingface.co/datasets/Ha-Te-21/tigrinya-corpus |
+| Model weights (bf16) | https://huggingface.co/Ha-Te-21/tigrinya-Gemma_4_E4B |
+| Four-bit build for CPU inference | https://huggingface.co/Ha-Te-21/sft_v1_q4km |
 
-## Structure
+The corpus is released per source, because the constituent sources carry
+different licences and several do not permit redistribution as a single
+archive.
 
-```
-main.tex
-references.bib          64 entries, 41 cited
-highlights.txt          mandatory, upload as its own file
-cover_letter.md
-sections/
-  00_abstract  01_introduction  02_related_work  03_corpus
-  04_method    05_setup         06_results       07_discussion
-  08_conclusion                 09_declarations
-figures/
-  Fig1  system architecture              (author-drawn, landscape)
-  Fig2  round-trip verification          (author-drawn)
-  Fig3  instruction mixture
-  Fig4  model internals and memory       (author-drawn)
-  Fig5  tokenizer fertility and cost
-  Fig6  training curves, three runs
-  Fig7  four-arm ablation
-  Fig8  deployment on three machines
-  make_figures.py          regenerates Fig3, Fig5-Fig8
-  pad_author_figures.py    adds the margin to the author-drawn PDFs
-```
+## What will land here
 
-**27 pages · 8 figures · 5 tables · 41 references · 0 undefined
-references · 1 overfull box of 7 pt.**
+- The corpus collection and cleaning pipeline: Ge'ez-script OCR repair,
+  script-level language identification, near-duplicate removal, and the
+  round-trip translation filter.
+- The instruction-set construction scripts, including the four task types
+  built deterministically from existing text.
+- Both continued-pre-training stages and the supervised fine-tuning run.
+- The four-arm ablation harness and both scoring harnesses, generative and
+  calibrated likelihood, with each correction switchable so the documented
+  failure modes can be reproduced.
+- The 865-item evaluation set and its leakage audit, covering exact
+  overlap, near-duplicate overlap, and the case where a passage used to
+  generate an instruction item also appears in the pre-training corpus.
+- The quantisation step and the deployment benchmark, with the raw result
+  files from all three test machines.
+- Pinned dependency versions and a reproduction guide.
 
-## The figure margin fix
+## Licence
 
-draw.io exports with the drawing flush against the page edge — the first
-inked row of Figure 1 was row zero, so the band label "1. Data
-Acquisition and Cleaning" sat on the boundary and any viewer trimming a
-hairline swallowed it. `pad_author_figures.py` widens the PDF MediaBox by
-14 pt on each side. Content is not moved or rescaled; white space is
-simply revealed around it. Re-run it after any re-export:
+Code will be released under the MIT licence. The adapted model is a
+derivative of Gemma and its redistribution is governed by the Gemma Terms
+of Use. Corpus sources retain their own licences, recorded per source.
 
-```bash
-python figures/pad_author_figures.py "<exported>.pdf" figures/Fig1.pdf 14
-```
+## A condition on use
 
-## Still to do
+This model should not be presented as a source of factual information
+about the world. Its hallucination rate has not been measured. It is a
+Tigrinya language model that follows instructions and formats output
+reliably, and it is at its best when the answer is in the text supplied to
+it rather than in its weights.
 
-1. **CRediT roles for authors c and d.** `sections/09_declarations.tex`
-   has `[roles to be supplied]` for Desta Teklu Fkadu and Abrhaley
-   Gebreslassie Gebremariam. A CRediT statement is a factual claim about
-   what named people did, so it is left blank rather than guessed. Roles
-   come from the taxonomy at credit.niso.org.
-2. **Vitae** — a biography of up to 100 words and a passport-style photo
-   for each of the four authors.
-3. **One figure fix remains** in Figure 1: the *Measured: ablation* box
-   still reads `scoring metrics CPU: 150-word answer in 38.5 seconds`.
-   It should read `4 of 4 ablation arms under two scoring methods`, with
-   `150-word answer in 38.8 s` moved into the *Deployment Target* box.
-4. **Cover letter** — one paragraph marked *[Decision needed]*.
-5. **Switch to `els-cas-templates`** at submission.
-6. **Model cards** — paste the two files in `4_huggingface_model_cards\`.
-7. **GitHub release** — agreed to follow submission.
+## Contact
+
+Atsbaha Teweldemedhn Hagos — atsbaha.teweldemedhn@mu.edu.et
+Software Engineering, Mekelle University, Mekelle, Ethiopia
+
+Watch this repository to be notified when the code lands.
