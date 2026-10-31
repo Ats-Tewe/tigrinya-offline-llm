@@ -1,7 +1,6 @@
 # An offline Tigrinya language model
 
-**Status: code release in progress — expected on acceptance of the
-accompanying paper.**
+**Status: code release in progress.**
 
 This repository will hold the full pipeline behind an offline Tigrinya
 language model: a 144.6-million-token corpus assembled from 21 native and
